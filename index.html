@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BEERPRO 🍺</title>
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <div id="auth-overlay" class="overlay">
+        <div class="auth-card">
+            <h2>Join the Tracker</h2>
+            <p>Enter your name exactly as it appears on the board.</p>
+            <input type="text" id="user-name" placeholder="Name (e.g. Graeme)">
+            <button onclick="joinTracker()">LET'S GO 🍺</button>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <nav class="top-nav">
+            <div class="logo">BEERPRO🍺</div>
+            <div onclick="localStorage.clear(); location.reload();" style="cursor:pointer; font-size: 0.8rem; color: #888;">Logout 👤</div>
+        </nav>
+
+        <header>
+            <h1>Beer Tracker</h1>
+            <p>Cheers, <strong id="display-name">Guest</strong>!</p>
+        </header>
+
+        <div class="leaderboard-card">
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Name</th>
+                        <th>Beers</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    </tbody>
+            </table>
+        </div>
+
+        <div class="controls">
+            <button class="add-beer-btn" onclick="updateBeer(1)">ADD BEER</button>
+            <button class="minus-beer-btn" onclick="updateBeer(-1)">Oops, minus one</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
