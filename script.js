@@ -75,3 +75,11 @@ function init() {
 }
 
 init();
+
+// 6. MODAL LOGIC
+window.toggleModal = function(show) {
+    const modal = document.getElementById('info-modal');
+    if (modal) {
+        modal.style.display = show ? 'flex' : 'none';
+    }
+};
