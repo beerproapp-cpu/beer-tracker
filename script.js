@@ -53,12 +53,20 @@ async function fetchLeaderboard() {
 
   const tableBody = document.getElementById('leaderboard-body');
   if (tableBody && data) {
-    tableBody.innerHTML = data.map((p, i) => `
-      <tr>
-        <td>${i + 1}</td>
-        <td><strong>${p.name}</strong></td>
-        <td>${p.beers}</td>
-      </tr>`).join('');
+    tableBody.innerHTML = data.map((p, i) => {
+      // 1. Keep rank as a simple number for perfect alignment
+      const rank = i + 1;
+
+      // 2. Add the trophy only to the person in 1st place
+      const trophyBadge = (i === 0) ? ' 🏆' : '';
+      
+      return `
+        <tr>
+          <td>${rank}</td>
+          <td><strong>${p.name}${trophyBadge}</strong></td>
+          <td>${p.beers}</td>
+        </tr>`;
+    }).join('');
   }
 }
 

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BEERPRO 🍺</title>
-    
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -22,7 +22,7 @@
 
     <div class="app-container">
         <nav class="top-nav">
-    <div class="logo">BEERPRO🍺</div>
+    <div class="logo">BEERPRO <span class="logo-emoji">🍺</span></div>
     <div style="display: flex; gap: 15px; align-items: center;">
         <div onclick="toggleModal(true)" style="cursor:pointer; font-size: 1.2rem;">ℹ️</div>
         <div onclick="localStorage.clear(); location.reload();" style="cursor:pointer; font-size: 0.8rem; color: #888;">Logout 👤</div>
@@ -31,7 +31,7 @@
 
         <header>
             <h1>Beer Tracker</h1>
-            <p>Cheers, <strong id="display-name">Guest</strong>!</p>
+            <p class="cheers">Cheers, <strong id="display-name">Guest</strong>!</p>
         </header>
 
         <div class="leaderboard-card">
@@ -56,11 +56,10 @@
 
 <div id="info-modal" class="overlay" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center;">
     <div class="auth-card" style="max-width: 320px; border: 1px solid #FFBF00;">
-        <h2 style="color: #FFBF00;">The Rules 📜</h2>
+        <h2 style="color: #FFBF00;">ABOUT</h2>
         <div style="text-align: left; margin: 20px 0; font-size: 0.9rem; line-height: 1.6; color: #eee;">
-            <p>• Only log your own beers.</p>
-            <p>• Be honest—the board doesn't lie!</p>
-            <p>• "Oops" button is for genuine mistakes.</p>
+            <p>BEERPRO is the ultimate tracking interface for those who take the session seriously. Log every round in real-time, track your stats, and secure your spot at the top of the leaderboard.</p>
+            
             <hr style="margin: 15px 0; border: 0; border-top: 1px solid #333;">
             <p style="color: #888; font-style: italic; font-size: 0.8rem;">Disclaimer: This app is for entertainment. Please drink responsibly and look after your mates.</p>
         </div>
