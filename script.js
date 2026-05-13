@@ -1,93 +1,218 @@
-// 1. SUPABASE CONNECTION
-const supabaseUrl = 'https://wsghvaxgtzpimutbgjcd.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndzZ2h2YXhndHpwaW11dGJnamNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NzQyMDksImV4cCI6MjA5NDA1MDIwOX0.RV8El3oScAjBJhSCjUG5h3sr3kRtIhI20Pp2eD65rbY';
-const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+// 0. SUPABASE SETUP
+const SB_URL = 'https://wsghvaxgtzpimutbgjcd.supabase.co'; 
+const SB_KEY = 'sb_publishable_SD733lMkLs-Gd4fLjgMH1w_jun5brFl'; 
 
-// 2. THE JOIN LOGIC (For you and your mates)
-window.joinTracker = async function() {
-  const nameInput = document.getElementById('user-name').value.trim();
-  if (!nameInput) return alert("Enter your name!");
+const sb = supabase.createClient(SB_URL, SB_KEY);
 
-  // Check if name exists in Supabase, if not, create it
-  const { data } = await _supabase.from('leaderboard').select('name').eq('name', nameInput);
-  
-  if (data && data.length === 0) {
-    await _supabase.from('leaderboard').insert([{ name: nameInput, beers: 0 }]);
-  }
-
-  // Save to browser memory and refresh
-  localStorage.setItem('beerProName', nameInput);
-  location.reload();
+// 1. AUTH TAB TOGGLING
+window.showAuthTab = function(tab) {
+    document.getElementById('join-section').style.display = tab === 'join' ? 'block' : 'none';
+    document.getElementById('create-section').style.display = tab === 'create' ? 'block' : 'none';
+    document.getElementById('tab-join').classList.toggle('active', tab === 'join');
+    document.getElementById('tab-create').classList.toggle('active', tab === 'create');
 };
 
-// 3. THE UPDATE LOGIC (Add or Minus)
-window.updateBeer = async function(amount) {
-  const playerName = localStorage.getItem('beerProName');
-  if (!playerName) return;
-
-  // Find the user's current beer count
-  const { data } = await _supabase.from('leaderboard').select('id, beers').eq('name', playerName);
-
-  if (data && data.length > 0) {
-    const newCount = Math.max(0, (data[0].beers || 0) + amount); // No negative beers allowed!
+// 2. POWER USER: CREATE ACCOUNT
+window.handleEmailSignUp = async function() {
+    const name = document.getElementById('signup-name-new').value.trim();
+    const email = document.getElementById('signup-email-new').value.trim();
+    const password = document.getElementById('signup-password-new').value.trim();
     
-    const { error } = await _supabase
-      .from('leaderboard')
-      .update({ beers: newCount })
-      .eq('id', data[0].id);
+    if (!name || !email || !password) return alert("Fill in all fields (Name, Email, Password)!");
 
-    if (!error) {
-      fetchLeaderboard(); // Update the table on screen
+    const { data, error } = await sb.auth.signUp({ 
+        email, 
+        password,
+        options: {
+            data: { display_name: name }
+        }
+    });
+
+    if (error) {
+        alert("Error: " + error.message);
+    } else {
+        alert("Account Created! You can now log in on the 'Sign In' tab.");
+        showAuthTab('join'); 
     }
-  }
 };
 
-// 4. THE DISPLAY LOGIC
+// 3. UNIVERSAL SIGN IN
+window.handleAuthAction = async function() {
+    const email = document.getElementById('login-email-admin').value.trim();
+    const password = document.getElementById('login-password-admin').value.trim();
+    const leagueId = document.getElementById('join-league-id').value.trim();
+    const userName = document.getElementById('join-user-name').value.trim();
+
+    // --- Choice A: Admin Logging In ---
+    if (email && password) {
+        const { data: authData, error: authError } = await sb.auth.signInWithPassword({ email, password });
+        if (authError) return alert("Login Failed: " + authError.message);
+
+        const user = authData.user;
+        const adminName = user.user_metadata?.display_name || user.email.split('@')[0];
+
+        // 1. Find the last league this admin created
+        const { data: leagues } = await sb.from('leagues')
+            .select('id')
+            .eq('creator_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(1);
+
+        if (leagues && leagues.length > 0) {
+            const activeLeagueId = leagues[0].id;
+
+            // 2. Force Join/Check on Leaderboard
+            const { data: existingEntry } = await sb.from('leaderboard')
+                .select('id')
+                .eq('name', adminName)
+                .eq('league_id', activeLeagueId);
+
+            if (!existingEntry || existingEntry.length === 0) {
+                await sb.from('leaderboard').insert([
+                    { name: adminName, beers: 0, league_id: activeLeagueId }
+                ]);
+            }
+
+            localStorage.setItem('beerProName', adminName);
+            localStorage.setItem('beerProLeague', activeLeagueId);
+        }
+
+        setTimeout(() => { location.reload(); }, 300); 
+        return;
+    }
+
+    // --- Choice B: Casual Mate joining ---
+    if (leagueId && userName) {
+        const { error } = await sb.from('leaderboard').insert([
+            { name: userName, beers: 0, league_id: leagueId }
+        ]);
+        if (error) return alert("Check your Invite Code!");
+        
+        localStorage.setItem('beerProName', userName);
+        localStorage.setItem('beerProLeague', leagueId);
+        location.reload();
+        return;
+    }
+
+    alert("Enter League Code + Name to join, OR Email + Password to login.");
+};
+
+// 4. CREATE LEAGUE
+window.createLeague = async function() {
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) return alert("You must be logged in as Admin to create leagues!");
+
+    const leagueName = prompt("Name your new league:");
+    if (!leagueName) return;
+
+    const { data: leagueData, error: leagueError } = await sb.from('leagues').insert([
+        { league_name: leagueName, creator_id: user.id }
+    ]).select();
+    
+    if (leagueError) return alert("Error: " + leagueError.message);
+    
+    const newID = leagueData[0].id;
+    const adminName = user.user_metadata?.display_name || user.email.split('@')[0];
+
+    await sb.from('leaderboard').insert([
+        { name: adminName, beers: 0, league_id: newID }
+    ]);
+
+    document.getElementById('generated-id-text').innerText = newID;
+    localStorage.setItem('beerProName', adminName);
+    localStorage.setItem('beerProLeague', newID);
+    
+    window.toggleModal(false);
+    document.getElementById('success-modal').classList.add('active');
+};
+
+// 4.1 COPY TO CLIPBOARD
+window.copyLeagueID = function() {
+    const idText = document.getElementById('generated-id-text').innerText;
+    const btn = document.getElementById('copy-btn');
+    navigator.clipboard.writeText(idText).then(() => {
+        const originalText = btn.innerText;
+        btn.innerText = "COPIED TO CLIPBOARD! ✅";
+        btn.classList.add('copied');
+        setTimeout(() => {
+            btn.innerText = originalText;
+            btn.classList.remove('copied');
+        }, 2000);
+    });
+};
+
+// 5. CORE BEER LOGIC
+window.updateBeer = async function(delta) {
+    const name = localStorage.getItem('beerProName');
+    const league = localStorage.getItem('beerProLeague');
+    if (!name || !league) return;
+
+    const { data } = await sb.from('leaderboard')
+        .select('beers').eq('name', name).eq('league_id', league).single();
+
+    const newCount = Math.max(0, (data?.beers || 0) + delta);
+
+    await sb.from('leaderboard')
+        .update({ beers: newCount }).eq('name', name).eq('league_id', league);
+
+    fetchLeaderboard();
+};
+
+// 5.1 FETCH & RENDER (The logic that was missing!)
 async function fetchLeaderboard() {
-  const { data, error } = await _supabase
-    .from('leaderboard')
-    .select('*')
-    .order('beers', { ascending: false });
+    const leagueId = localStorage.getItem('beerProLeague');
+    if (!leagueId) return;
 
-  if (error) return console.error(error);
+    // Fetch League Name
+    const { data: leagueData } = await sb.from('leagues')
+        .select('league_name').eq('id', leagueId).single();
+    
+    if (leagueData) {
+        document.getElementById('league-display-name').innerText = leagueData.league_name;
+    }
 
-  const tableBody = document.getElementById('leaderboard-body');
-  if (tableBody && data) {
-    tableBody.innerHTML = data.map((p, i) => {
-      // 1. Keep rank as a simple number for perfect alignment
-      const rank = i + 1;
+    // Fetch Players
+    const { data, error } = await sb.from('leaderboard')
+        .select('*').eq('league_id', leagueId).order('beers', { ascending: false });
 
-      // 2. Add the trophy only to the person in 1st place
-      const trophyBadge = (i === 0) ? ' 🏆' : '';
-      
-      return `
-        <tr>
-          <td>${rank}</td>
-          <td><strong>${p.name}${trophyBadge}</strong></td>
-          <td>${p.beers}</td>
-        </tr>`;
-    }).join('');
-  }
+    if (error) return;
+
+    // DRAW THE TABLE
+    const tableBody = document.getElementById('leaderboard-body');
+    if (tableBody) {
+        tableBody.innerHTML = data.map((p, i) => `
+            <tr>
+                <td>${i + 1}</td>
+                <td><strong>${p.name}${i === 0 ? ' 🏆' : ''}</strong></td>
+                <td>${p.beers}</td>
+            </tr>`).join('');
+    }
 }
 
-// 5. RUN ON STARTUP
-function init() {
-  const savedName = localStorage.getItem('beerProName');
-  const overlay = document.getElementById('auth-overlay');
-  
-  if (savedName) {
-    if (overlay) overlay.style.display = 'none';
-    document.getElementById('display-name').innerText = savedName;
-  }
-  fetchLeaderboard();
+// 6. UI HELPERS
+window.toggleModal = (show) => document.getElementById('info-modal').classList.toggle('active', show);
+
+window.handleLogout = async () => {
+    await sb.auth.signOut();
+    localStorage.clear();
+    location.reload();
+};
+
+// 7. STARTUP
+async function init() {
+    const { data: { user } } = await sb.auth.getUser();
+    const savedName = localStorage.getItem('beerProName');
+    const savedLeague = localStorage.getItem('beerProLeague');
+    const authOverlay = document.getElementById('auth-overlay');
+    
+    if (user || (savedName && savedLeague)) {
+        authOverlay.style.display = 'none';
+        const finalName = savedName || user?.user_metadata?.display_name || user?.email?.split('@')[0];
+        document.getElementById('display-name').innerText = finalName;
+        if (savedLeague) fetchLeaderboard();
+    } else {
+        authOverlay.style.display = 'flex';
+    }
 }
 
 init();
-
-// 6. MODAL LOGIC
-window.toggleModal = function(show) {
-    const modal = document.getElementById('info-modal');
-    if (modal) {
-        modal.style.display = show ? 'flex' : 'none';
-    }
-};
