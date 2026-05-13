@@ -161,7 +161,7 @@ window.updateBeer = async function(delta) {
     fetchLeaderboard();
 };
 
-// 5.1 FETCH & RENDER (The logic that was missing!)
+// 5.1 FETCH & RENDER
 async function fetchLeaderboard() {
     const leagueId = localStorage.getItem('beerProLeague');
     if (!leagueId) return;
@@ -172,15 +172,17 @@ async function fetchLeaderboard() {
     
     if (leagueData) {
         document.getElementById('league-display-name').innerText = leagueData.league_name;
+        
+        // --- ADD THIS LINE BELOW ---
+        document.getElementById('league-id-display').innerText = `ID: ${leagueId}`;
     }
 
-    // Fetch Players
+    // ... (rest of the function stays exactly the same)
     const { data, error } = await sb.from('leaderboard')
         .select('*').eq('league_id', leagueId).order('beers', { ascending: false });
 
     if (error) return;
 
-    // DRAW THE TABLE
     const tableBody = document.getElementById('leaderboard-body');
     if (tableBody) {
         tableBody.innerHTML = data.map((p, i) => `
@@ -191,7 +193,6 @@ async function fetchLeaderboard() {
             </tr>`).join('');
     }
 }
-
 // 6. UI HELPERS
 window.toggleModal = (show) => document.getElementById('info-modal').classList.toggle('active', show);
 
@@ -221,30 +222,38 @@ async function init() {
 // 1. Fetch all leagues created by this Admin
 window.loadMyLeagues = async function() {
     const { data: { user } } = await sb.auth.getUser();
-    if (!user) return; // If not logged in as Admin, do nothing
+    if (!user) return;
 
-    const { data: leagues, error } = await sb.from('leagues')
-        .select('id, league_name, created_at')
-        .eq('creator_id', user.id)
-        .order('created_at', { ascending: false });
+    const myName = localStorage.getItem('beerProName');
+
+    // NEW LOGIC: Find all leagues where I am a player on the leaderboard
+    const { data: participations, error } = await sb.from('leaderboard')
+        .select(`
+            league_id,
+            leagues ( id, league_name )
+        `)
+        .eq('name', myName);
 
     const manageSection = document.getElementById('admin-manage-section');
     const listContainer = document.getElementById('my-leagues-list');
 
-    if (leagues && leagues.length > 0) {
-        manageSection.style.display = 'block'; // Reveal the section for Admins
-        listContainer.innerHTML = leagues.map(l => `
-            <div style="display: flex; gap: 5px; width: 100%;">
-                <button onclick="switchLeague('${l.id}')" class="minus-beer-btn" style="flex: 1; color: #fff; border-color: #444; padding: 10px; margin-bottom: 0;">
+    if (participations && participations.length > 0) {
+        manageSection.style.display = 'block';
+        
+        // Map through the results to get the league details
+        listContainer.innerHTML = participations.map(p => {
+            const l = p.leagues;
+            if (!l) return ''; // Guard clause
+            return `
+                <button onclick="switchLeague('${l.id}')" class="minus-beer-btn" style="width: 100%; text-align: left; padding-left: 15px; color: white; border-color: #333; margin-bottom: 5px;">
                     ${l.league_name}
                 </button>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     } else {
         manageSection.style.display = 'none';
     }
 };
-
 // 2. The Switcher Function
 window.switchLeague = function(leagueId) {
     localStorage.setItem('beerProLeague', leagueId);
