@@ -43,7 +43,7 @@ window.handleAuthAction = async function() {
     const leagueId = document.getElementById('join-league-id').value.trim();
     const userName = document.getElementById('join-user-name').value.trim();
 
-    // --- Choice A: Admin Logging In ---
+    // --- Choice A: Admin Logging In (Keep this!) ---
     if (email && password) {
         const { data: authData, error: authError } = await sb.auth.signInWithPassword({ email, password });
         if (authError) return alert("Login Failed: " + authError.message);
@@ -51,7 +51,6 @@ window.handleAuthAction = async function() {
         const user = authData.user;
         const adminName = user.user_metadata?.display_name || user.email.split('@')[0];
 
-        // 1. Find the last league this admin created
         const { data: leagues } = await sb.from('leagues')
             .select('id')
             .eq('creator_id', user.id)
@@ -60,33 +59,36 @@ window.handleAuthAction = async function() {
 
         if (leagues && leagues.length > 0) {
             const activeLeagueId = leagues[0].id;
-
-            // 2. Force Join/Check on Leaderboard
+            
+            // Admin "Check & Join" logic
             const { data: existingEntry } = await sb.from('leaderboard')
-                .select('id')
-                .eq('name', adminName)
-                .eq('league_id', activeLeagueId);
+                .select('id').eq('name', adminName).eq('league_id', activeLeagueId);
 
             if (!existingEntry || existingEntry.length === 0) {
-                await sb.from('leaderboard').insert([
-                    { name: adminName, beers: 0, league_id: activeLeagueId }
-                ]);
+                await sb.from('leaderboard').insert([{ name: adminName, beers: 0, league_id: activeLeagueId }]);
             }
 
             localStorage.setItem('beerProName', adminName);
             localStorage.setItem('beerProLeague', activeLeagueId);
         }
-
         setTimeout(() => { location.reload(); }, 300); 
         return;
     }
 
-    // --- Choice B: Casual Mate joining ---
+    // --- Choice B: Casual Mate joining (The new "Duplicate-Proof" version) ---
     if (leagueId && userName) {
-        const { error } = await sb.from('leaderboard').insert([
-            { name: userName, beers: 0, league_id: leagueId }
-        ]);
-        if (error) return alert("Check your Invite Code!");
+        const { data: existingUser } = await sb.from('leaderboard')
+            .select('name')
+            .eq('league_id', leagueId)
+            .eq('name', userName)
+            .maybeSingle();
+
+        if (!existingUser) {
+            const { error: insertError } = await sb.from('leaderboard').insert([
+                { name: userName, beers: 0, league_id: leagueId }
+            ]);
+            if (insertError) return alert("Error joining league. Check your code!");
+        }
         
         localStorage.setItem('beerProName', userName);
         localStorage.setItem('beerProLeague', leagueId);
@@ -96,7 +98,6 @@ window.handleAuthAction = async function() {
 
     alert("Enter League Code + Name to join, OR Email + Password to login.");
 };
-
 // 4. CREATE LEAGUE
 window.createLeague = async function() {
     const { data: { user } } = await sb.auth.getUser();

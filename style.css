@@ -374,3 +374,21 @@ header h1 {
     background: #4CAF50; /* Turns green when clicked */
     color: white;
 }
+
+/* ADD BEER: White border and shrink on click */
+.add-beer-btn:active {
+    transform: scale(0.96); /* Shrinks slightly */
+    border: 3px solid #FFF; /* Flashes white border */
+    background-color: #ffcc33; /* Shifts yellow slightly */
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+    transition: 0.05s; /* Makes it feel "snappy" */
+}
+
+/* MINUS BEER: Red flash on click */
+.minus-beer-btn:active {
+    transform: scale(0.98);
+    background-color: #ff4444 !important;
+    color: white !important;
+    border-color: #ff4444 !important;
+    transition: 0.05s;
+}
