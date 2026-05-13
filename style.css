@@ -271,14 +271,17 @@ header h1 {
 
 .minus-beer-btn {
     padding: 15px;
-    background: transparent;
-    color: #444;
-    border: 1px solid #222;
+    background: rgba(255, 255, 255, 0.03); /* Tiny bit of fill so it's not totally hollow */
+    color: #999; /* Much clearer grey text */
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Stronger faint border */
     border-radius: 15px;
     font-family: 'Rajdhani', sans-serif;
     cursor: pointer;
     text-transform: uppercase;
     font-size: 0.8rem;
+    transition: all 0.2s ease;
+    outline: none;
+    -webkit-appearance: none; /* Prevents iOS from applying default button styling */
 }
 
 /* --- 11. MODAL / ABOUT --- */
@@ -384,11 +387,12 @@ header h1 {
     transition: 0.05s; /* Makes it feel "snappy" */
 }
 
-/* MINUS BEER: Red flash on click */
+/* The Click State */
 .minus-beer-btn:active {
     transform: scale(0.98);
     background-color: #ff4444 !important;
     color: white !important;
-    border-color: #ff4444 !important;
-    transition: 0.05s;
+    border: 2px solid #FFF !important; /* Thick white border flash */
+    transition: 0.0s; 
+    -webkit-tap-highlight-color: transparent; 
 }

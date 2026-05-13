@@ -4,6 +4,8 @@ const SB_KEY = 'sb_publishable_SD733lMkLs-Gd4fLjgMH1w_jun5brFl';
 
 const sb = supabase.createClient(SB_URL, SB_KEY);
 
+document.addEventListener("touchstart", function() {}, true);
+
 // 1. AUTH TAB TOGGLING
 window.showAuthTab = function(tab) {
     document.getElementById('join-section').style.display = tab === 'join' ? 'block' : 'none';
