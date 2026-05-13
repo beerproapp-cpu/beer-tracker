@@ -81,7 +81,7 @@
         </div>
     </div>
 
-    <div id="info-modal" class="overlay">
+<div id="info-modal" class="overlay">
     <div class="auth-card about-card">
         <h2 class="glitch-title" style="font-size: 1.5rem; margin-bottom: 20px;">ABOUT</h2>
         
@@ -90,8 +90,20 @@
             Organize leagues, track rounds in real-time, and see who's leading the pack.
         </p>
 
+        <div id="admin-manage-section" style="display: none; margin: 25px 0; border-top: 1px solid #333; padding-top: 20px;">
+            <p class="modal-label">Switch My Leagues</p>
+            <div id="my-leagues-list" class="league-scroll-container">
+                </div>
+
+            <p class="modal-label">Join Another League</p>
+            <div class="modal-input-group">
+                <input type="text" id="modal-join-id" placeholder="Enter Invite Code">
+                <button onclick="joinViaModal()" class="add-beer-btn mini-btn">JOIN</button>
+            </div>
+        </div>
+
         <div style="margin: 25px 0; border-top: 1px solid #333; padding-top: 20px;">
-            <p style="font-size: 0.8rem; color: #FFBF00; text-transform: uppercase; margin-bottom: 10px; font-weight: 700;">League Admin</p>
+            <p class="modal-label">League Admin</p>
             <button onclick="createLeague()" class="add-beer-btn" style="padding: 15px; font-size: 1.1rem;">+ START NEW LEAGUE</button>
             <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">New leagues generate a unique Invite Code.</p>
         </div>

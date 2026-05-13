@@ -396,3 +396,102 @@ header h1 {
     transition: 0.0s; 
     -webkit-tap-highlight-color: transparent; 
 }
+
+/* Custom Scrollbar for the League List (Chrome/Safari) */
+#my-leagues-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+#my-leagues-list::-webkit-scrollbar-track {
+    background: #000;
+}
+
+#my-leagues-list::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 10px;
+}
+
+/* Ensure the switcher buttons look like secondary menu items */
+#my-leagues-list button {
+    text-align: left;
+    padding-left: 20px !important;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #333;
+    font-size: 0.9rem;
+}
+
+#my-leagues-list button:hover {
+    border-color: #FFBF00;
+    color: #FFBF00;
+}
+
+/* Custom Scrollbar for the League List (Chrome/Safari) */
+#my-leagues-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+#my-leagues-list::-webkit-scrollbar-track {
+    background: #000;
+}
+
+#my-leagues-list::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 10px;
+}
+
+/* Ensure the switcher buttons look like secondary menu items */
+#my-leagues-list button {
+    text-align: left;
+    padding-left: 20px !important;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #333;
+    font-size: 0.9rem;
+}
+
+#my-leagues-list button:hover {
+    border-color: #FFBF00;
+    color: #FFBF00;
+}
+
+/* Modal Control Center Classes */
+.modal-label {
+    font-size: 0.8rem;
+    color: #FFBF00;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.league-scroll-container {
+    display: flex; 
+    flex-direction: column; 
+    gap: 10px; 
+    max-height: 150px; 
+    overflow-y: auto; 
+    padding-right: 5px;
+    margin-bottom: 20px;
+}
+
+.modal-input-group {
+    display: flex; 
+    gap: 8px;
+}
+
+#modal-join-id {
+    background: #000;
+    border: 1px solid #333;
+    color: #fff;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 0.9rem;
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.mini-btn {
+    width: auto !important;
+    padding: 0 20px !important;
+    font-size: 0.9rem !important;
+    margin-top: 0 !important;
+}
+

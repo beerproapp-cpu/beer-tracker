@@ -218,4 +218,73 @@ async function init() {
     }
 }
 
+// 1. Fetch all leagues created by this Admin
+window.loadMyLeagues = async function() {
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) return; // If not logged in as Admin, do nothing
+
+    const { data: leagues, error } = await sb.from('leagues')
+        .select('id, league_name, created_at')
+        .eq('creator_id', user.id)
+        .order('created_at', { ascending: false });
+
+    const manageSection = document.getElementById('admin-manage-section');
+    const listContainer = document.getElementById('my-leagues-list');
+
+    if (leagues && leagues.length > 0) {
+        manageSection.style.display = 'block'; // Reveal the section for Admins
+        listContainer.innerHTML = leagues.map(l => `
+            <div style="display: flex; gap: 5px; width: 100%;">
+                <button onclick="switchLeague('${l.id}')" class="minus-beer-btn" style="flex: 1; color: #fff; border-color: #444; padding: 10px; margin-bottom: 0;">
+                    ${l.league_name}
+                </button>
+            </div>
+        `).join('');
+    } else {
+        manageSection.style.display = 'none';
+    }
+};
+
+// 2. The Switcher Function
+window.switchLeague = function(leagueId) {
+    localStorage.setItem('beerProLeague', leagueId);
+    // Note: handleAuthAction's logic will automatically add your name 
+    // to this league's leaderboard when the page reloads.
+    location.reload(); 
+};
+
+// 3. Update toggleModal to trigger the loader
+// (Replace your existing toggleModal with this one)
+window.toggleModal = (show) => {
+    document.getElementById('info-modal').classList.toggle('active', show);
+    if (show) {
+        loadMyLeagues(); // Refresh the list every time the menu opens
+    }
+};
+
+// --- NEW: Join a league from inside the About Modal ---
+window.joinViaModal = async function() {
+    const code = document.getElementById('modal-join-id').value.trim();
+    if (!code) return alert("Please enter a code!");
+
+    const myName = localStorage.getItem('beerProName');
+    if (!myName) return alert("Error: User name not found. Try logging out and back in.");
+
+    // 1. Check if league exists
+    const { data: leagueExists, error } = await sb.from('leagues').select('id').eq('id', code).maybeSingle();
+    if (error || !leagueExists) return alert("League code not found!");
+
+    // 2. Add player to the new league's leaderboard if not already there
+    const { data: existing } = await sb.from('leaderboard')
+        .select('id').eq('name', myName).eq('league_id', code).maybeSingle();
+
+    if (!existing) {
+        await sb.from('leaderboard').insert([{ name: myName, beers: 0, league_id: code }]);
+    }
+
+    // 3. Switch to the new league
+    localStorage.setItem('beerProLeague', code);
+    location.reload();
+};
+
 init();
