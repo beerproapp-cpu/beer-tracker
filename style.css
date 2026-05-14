@@ -80,7 +80,7 @@ body {
 
 .tab-btn {
     flex: 1;
-    padding: 18px 10px;
+    padding: 12px 5px !important;
     background: transparent;
     color: #666;
     border: none;
@@ -88,7 +88,7 @@ body {
     cursor: pointer;
     font-family: 'Rajdhani', sans-serif;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.8rem !important;
     text-transform: uppercase;
     transition: 0.3s ease;
 }
@@ -286,10 +286,11 @@ header h1 {
 
 /* --- 11. MODAL / ABOUT --- */
 .about-card {
-    border: 2px dashed #333;
-    background: #1a1a1a;
-    padding: 30px;
-    border-radius: 30px;
+    max-height: 90vh !important; /* Never taller than 90% of screen */
+    overflow-y: auto !important; /* Enable internal scrolling */
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 20px;
 }
 
 .close-btn {
@@ -343,7 +344,8 @@ header h1 {
     color: #000;         /* Black text for contrast */
     border: none;
     border-radius: 15px;
-    margin-top: 20px;
+    margin-top: auto;
+    margin-bottom: 10px;
     font-family: 'Rajdhani', sans-serif;
     font-weight: 700;
     font-size: 1.1rem;
