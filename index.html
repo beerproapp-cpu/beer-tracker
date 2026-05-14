@@ -50,6 +50,7 @@
         <nav class="top-nav">
     <div class="logo">BEERPRO <span class="logo-emoji">🍺</span></div>
     <div class="nav-actions">
+        <div onclick="showPersonalStats()" class="info-icon" id="stats-icon" style="display:none;">📊</div>
         <div onclick="toggleModal(true)" class="info-icon">ℹ️</div>
         <div onclick="handleLogout()" class="logout-link">Logout 👤</div>
     </div>
@@ -88,7 +89,7 @@
         
         <p class="about-text">
             <strong>BEERPRO</strong> is the ultimate tracking interface for those who take the session seriously. 
-            Organize leagues, track rounds in real-time, and see who's leading the pack.
+            Organise leagues, track rounds in real-time, and see who's leading the pack.
         </p>
 
         <div id="admin-manage-section" style="display: none; margin: 25px 0; border-top: 1px solid #333; padding-top: 20px;">
@@ -133,6 +134,25 @@
         </p>
         
         <button onclick="location.reload()" class="minus-beer-btn" style="width: 100%; margin-top: 15px;">ENTER LEAGUE</button>
+    </div>
+</div>
+
+<div id="stats-modal" class="overlay">
+    <div class="auth-card about-card">
+        <h2 class="glitch-title" style="font-size: 1.5rem; margin-bottom: 20px;">CAREER STATS</h2>
+        
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-label">TOTAL CONSUMED</span>
+                <span id="stat-total-beers" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">LEAGUES JOINED</span>
+                <span id="stat-total-leagues" class="stat-value">0</span>
+            </div>
+        </div>
+
+        <button onclick="document.getElementById('stats-modal').classList.remove('active')" class="got-it-btn">CLOSE</button>
     </div>
 </div>
 

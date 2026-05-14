@@ -296,4 +296,48 @@ window.joinViaModal = async function() {
     location.reload();
 };
 
+window.showPersonalStats = async function() {
+    const myName = localStorage.getItem('beerProName');
+    if (!myName) return;
+
+    // 1. Fetch every single entry for this name across all leagues
+    const { data, error } = await sb.from('leaderboard')
+        .select('beers')
+        .eq('name', myName);
+
+    if (error) return console.error(error);
+
+    // 2. Calculate Totals
+    const totalBeers = data.reduce((sum, row) => sum + (row.beers || 0), 0);
+    const totalLeagues = data.length;
+
+    // 3. Update Modal & Show
+    document.getElementById('stat-total-beers').innerText = totalBeers;
+    document.getElementById('stat-total-leagues').innerText = totalLeagues;
+    document.getElementById('stats-modal').classList.add('active');
+};
+
+// Update your init() function to show the icon only for account holders
+async function init() {
+    const { data: { user } } = await sb.auth.getUser();
+    const savedName = localStorage.getItem('beerProName');
+    const savedLeague = localStorage.getItem('beerProLeague');
+    const authOverlay = document.getElementById('auth-overlay');
+    
+    if (user || (savedName && savedLeague)) {
+        authOverlay.style.display = 'none';
+        const finalName = savedName || user?.user_metadata?.display_name;
+        document.getElementById('display-name').innerText = finalName;
+        
+        // --- ONLY SHOW STATS ICON IF LOGGED IN VIA EMAIL ---
+        if (user) {
+            document.getElementById('stats-icon').style.display = 'block';
+        }
+
+        if (savedLeague) fetchLeaderboard();
+    } else {
+        authOverlay.style.display = 'flex';
+    }
+}
+
 init();
