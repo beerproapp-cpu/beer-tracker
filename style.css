@@ -561,3 +561,101 @@ button.leave-league-btn:active,
     background-color: #4a0680 !important;
     background: #4a0680 !important;
 }
+
+/* --- 13. PRIVACY POLICY LAYOUT --- */
+.privacy-body {
+    background-color: #000000;
+    color: #ffffff;
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.privacy-container {
+    max-width: 600px;
+    width: 100%;
+    background: #111111;
+    padding: 30px;
+    border-radius: 20px;
+    border: 1px solid #222222;
+}
+
+.privacy-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #ffb703;
+    font-size: 2.2rem;
+    margin-top: 0;
+    border-bottom: 2px solid #222222;
+    padding-bottom: 10px;
+}
+
+.privacy-subtitle {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #a224ec;
+    font-size: 1.3rem;
+    margin-top: 25px;
+}
+
+.privacy-date,
+.privacy-container p, 
+.privacy-container li {
+    color: #cccccc;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.privacy-container ul {
+    padding-left: 20px;
+}
+
+.privacy-container li {
+    margin-bottom: 8px;
+}
+
+.privacy-back-btn {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 12px 24px;
+    background: #222222;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 12px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.privacy-back-btn:hover {
+    background: #333333;
+}
+
+.privacy-back-btn:active {
+    transform: scale(0.98);
+}
+
+.app-footer {
+    text-align: center;
+    margin: 40px 0 20px 0;
+    font-family: 'Rajdhani', sans-serif;
+}
+
+.privacy-link {
+    color: #444444;
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+}
+
+.privacy-link:hover {
+    color: #a224ec;
+}
