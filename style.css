@@ -659,3 +659,44 @@ button.leave-league-btn:active,
 .privacy-link:hover {
     color: #a224ec;
 }
+
+/* --- 14. MOBILE NAVIGATION SPACING ALIGNMENT --- */
+.top-nav {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100%;
+}
+
+.logo {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important; /* Pushes the mug right up next to the text */
+}
+
+.logo-text {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: #ffb703;
+    letter-spacing: 0.5px;
+}
+
+.logo-emoji {
+    font-size: 1.3rem;
+    line-height: 1;
+    transform: translateY(-1px); /* Keeps it level with the text */
+}
+
+/* Adjustments specifically for phone layouts */
+@media (max-width: 400px) {
+    .logo-text {
+        font-size: 1.2rem;
+    }
+    .logo-emoji {
+        font-size: 1.1rem;
+    }
+    .nav-actions {
+        gap: 8px !important; /* Compresses buttons slightly so they don't crowd the logo */
+    }
+}
