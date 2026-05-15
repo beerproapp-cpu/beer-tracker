@@ -34,34 +34,36 @@
                 <button onclick="handleAuthAction()">ENTER SESSION 🍺</button>
             </div>
 
-           <div id="create-section" style="display: none;">
-    <p class="auth-subtitle">Create an account to manage your own sessions.</p>
-    
-    <input type="text" id="signup-name-new" placeholder="Your Display Name"> 
-    
-    <input type="email" id="signup-email-new" placeholder="Email Address">
-    <input type="password" id="signup-password-new" placeholder="Create Password">
-    <button onclick="handleEmailSignUp()">CREATE ACCOUNT 👤</button>
-</div>
+            <div id="create-section" style="display: none;">
+                <p class="auth-subtitle">Create an account to manage your own sessions.</p>
+                <input type="text" id="signup-name-new" placeholder="Your Display Name"> 
+                <input type="email" id="signup-email-new" placeholder="Email Address">
+                <input type="password" id="signup-password-new" placeholder="Create Password">
+                <button onclick="handleEmailSignUp()">CREATE ACCOUNT 👤</button>
+            </div>
         </div>
     </div>
 
     <div class="app-container">
         <nav class="top-nav">
-    <div class="logo">BEERPRO <span class="logo-emoji">🍺</span></div>
-    <div class="nav-actions">
-        <div onclick="showPersonalStats()" class="info-icon" id="stats-icon" style="display:none;">📊</div>
-        <div onclick="toggleModal(true)" class="info-icon">ℹ️</div>
-        <div onclick="handleLogout()" class="logout-link">Logout 👤</div>
-    </div>
-</nav>
+            <div class="logo">BEERPRO <span class="logo-emoji">🍺</span></div>
+            <div class="nav-actions">
+                <div onclick="showPersonalStats()" class="info-icon" id="stats-icon" style="display:none;">📊</div>
+                <div onclick="toggleModal(true)" class="info-icon">ℹ️</div>
+                <div onclick="handleLogout()" class="logout-link">Logout 👤</div>
+            </div>
+        </nav>
 
         <header>
-
             <h1>Beer Tracker</h1>
             <p class="cheers">Cheers, <strong id="display-name">Guest</strong>!</p>
-<p id="league-display-name" class="league-title-sub"></p>
-<p id="league-id-display" onclick="copySessionID()" class="admin-id-badge"></p>
+            <p id="league-display-name" class="league-title-sub"></p>
+            <p id="league-id-display" onclick="copySessionID()" class="admin-id-badge"></p>
+            
+            <div id="admin-actions" style="display: none; justify-content: center; gap: 10px; margin-top: 12px; margin-bottom: 5px;">
+                <button onclick="handleArchiveLeague()" class="admin-control-btn archive-btn">📦 Archive League</button>
+                <button onclick="handleDeleteLeague()" class="admin-control-btn delete-btn">🗑️ Delete League</button>
+            </div>
         </header>
 
         <div class="leaderboard-card">
@@ -80,81 +82,88 @@
         <div class="controls">
             <button class="add-beer-btn" onclick="updateBeer(1)">ADD BEER</button>
             <button class="minus-beer-btn" onclick="updateBeer(-1)">Oops, minus one</button>
+<button class="leave-league-btn" onclick="handleLeaveLeague()">Leave League</button>
         </div>
     </div>
 
-<div id="info-modal" class="overlay">
-    <div class="auth-card about-card">
-        <h2 class="glitch-title" style="font-size: 1.5rem; margin-bottom: 20px;">ABOUT</h2>
-        
-        <p class="about-text">
-            <strong>BEERPRO</strong> is the ultimate tracking interface for those who take the session seriously. 
-            Organise leagues, track rounds in real-time, and see who's leading the pack.
-        </p>
+    <div id="info-modal" class="overlay">
+        <div class="auth-card about-card">
+            <h2 class="glitch-title" style="font-size: 1.5rem; margin-bottom: 20px;">ABOUT</h2>
+            
+            <p class="about-text">
+                <strong>BEERPRO</strong> is the ultimate tracking interface for those who take the session seriously. 
+                Organise leagues, track rounds in real-time, and see who's leading the pack.
+            </p>
 
-        <div id="admin-manage-section" style="display: none; margin: 25px 0; border-top: 1px solid #333; padding-top: 20px;">
-            <p class="modal-label">Switch My Leagues</p>
-            <div id="my-leagues-list" class="league-scroll-container">
+            <div id="admin-manage-section" style="display: none; margin: 25px 0; border-top: 1px solid #333; padding-top: 20px;">
+                <p class="modal-label">Switch My Leagues</p>
+                <div id="my-leagues-list" class="league-scroll-container"></div>
+
+                <p class="modal-label">Join Another League</p>
+                <div class="modal-input-group">
+                    <input type="text" id="modal-join-id" placeholder="Enter Invite Code">
+                    <button onclick="joinViaModal()" class="add-beer-btn mini-btn">JOIN</button>
                 </div>
-
-            <p class="modal-label">Join Another League</p>
-            <div class="modal-input-group">
-                <input type="text" id="modal-join-id" placeholder="Enter Invite Code">
-                <button onclick="joinViaModal()" class="add-beer-btn mini-btn">JOIN</button>
             </div>
+
+            <div style="margin: 25px 0; border-top: 1px solid #333; padding-top: 20px;">
+                <p class="modal-label">League Admin</p>
+                <button onclick="createLeague()" class="add-beer-btn" style="padding: 15px; font-size: 1.1rem;">+ START NEW LEAGUE</button>
+                <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">New leagues generate a unique Invite Code.</p>
+            </div>
+
+            <p class="disclaimer">
+                This app is for entertainment purposes only. Please drink responsibly and stay within your limits.
+            </p>
+
+            <button onclick="toggleModal(false)" class="got-it-btn">GOT IT</button>
         </div>
+    </div>
 
-        <div style="margin: 25px 0; border-top: 1px solid #333; padding-top: 20px;">
-            <p class="modal-label">League Admin</p>
-            <button onclick="createLeague()" class="add-beer-btn" style="padding: 15px; font-size: 1.1rem;">+ START NEW LEAGUE</button>
-            <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">New leagues generate a unique Invite Code.</p>
+    <div id="success-modal" class="overlay">
+        <div class="auth-card">
+            <h2 class="glitch-title" style="font-size: 1.5rem; margin-bottom: 10px;">MISSION ACCOMPLISHED</h2>
+            <p style="color: #888; margin-bottom: 20px;">League Created! Share this code with the squad:</p>
+            
+            <div class="code-display-box">
+                <span id="generated-id-text">XXXX-XXXX-XXXX</span>
+            </div>
+
+            <button onclick="copyLeagueID()" class="got-it-btn" id="copy-btn">COPY INVITE CODE 📋</button>
+            <p style="font-size: 0.8rem; color: #444; margin-top: 20px;">(You can find this code again in the About menu)</p>
+            <button onclick="location.reload()" class="minus-beer-btn" style="width: 100%; margin-top: 15px;">ENTER LEAGUE</button>
         </div>
+    </div>
 
-        <p class="disclaimer">
-            This app is for entertainment purposes only. Please drink responsibly and stay within your limits.
-        </p>
+    <div id="stats-modal" class="overlay">
+        <div class="auth-card about-card">
+            <h2 class="glitch-title" style="font-size: 1.5rem; margin-bottom: 20px;">CAREER STATS</h2>
+            
+           <div class="stats-grid">
+    <div class="stat-item">
+        <span class="stat-label">CURRENT BEERS</span>
+        <span id="stat-current-beers" class="stat-value">0</span>
+    </div>
 
-        <button onclick="toggleModal(false)" class="got-it-btn">GOT IT</button>
+    <div class="stat-item">
+        <span class="stat-label">ACTIVE LEAGUES</span>
+        <span id="stat-current-leagues" class="stat-value">0</span>
+    </div>
+
+    <div class="stat-item">
+        <span class="stat-label">TOTAL CONSUMED</span>
+        <span id="stat-total-beers" class="stat-value" style="color: #7b0cb3 !important;">0</span>
+    </div>
+
+    <div class="stat-item">
+        <span class="stat-label">LEAGUES JOINED</span>
+        <span id="stat-total-leagues" class="stat-value" style="color: #7b0cb3 !important;">0</span>
     </div>
 </div>
 
-<div id="success-modal" class="overlay">
-    <div class="auth-card">
-        <h2 class="glitch-title" style="font-size: 1.5rem; margin-bottom: 10px;">MISSION ACCOMPLISHED</h2>
-        <p style="color: #888; margin-bottom: 20px;">League Created! Share this code with the squad:</p>
-        
-        <div class="code-display-box">
-            <span id="generated-id-text">XXXX-XXXX-XXXX</span>
+            <button onclick="document.getElementById('stats-modal').classList.remove('active')" class="got-it-btn">CLOSE</button>
         </div>
-
-        <button onclick="copyLeagueID()" class="got-it-btn" id="copy-btn">COPY INVITE CODE 📋</button>
-        
-        <p style="font-size: 0.8rem; color: #444; margin-top: 20px;">
-            (You can find this code again in the About menu)
-        </p>
-        
-        <button onclick="location.reload()" class="minus-beer-btn" style="width: 100%; margin-top: 15px;">ENTER LEAGUE</button>
     </div>
-</div>
-
-<div id="stats-modal" class="overlay">
-    <div class="auth-card about-card">
-        <h2 class="glitch-title" style="font-size: 1.5rem; margin-bottom: 20px;">CAREER STATS</h2>
-        
-        <div class="stats-grid">
-            <div class="stat-item">
-                <span class="stat-label">TOTAL CONSUMED</span>
-                <span id="stat-total-beers" class="stat-value">0</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">LEAGUES JOINED</span>
-                <span id="stat-total-leagues" class="stat-value">0</span>
-            </div>
-        </div>
-
-        <button onclick="document.getElementById('stats-modal').classList.remove('active')" class="got-it-btn">CLOSE</button>
-    </div>
-</div>
 
     <script src="script.js"></script>
 </body>

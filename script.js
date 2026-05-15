@@ -45,7 +45,9 @@ window.handleAuthAction = async function() {
     const leagueId = document.getElementById('join-league-id').value.trim();
     const userName = document.getElementById('join-user-name').value.trim();
 
-    // --- Choice A: Admin Logging In (Keep this!) ---
+    // ==========================================
+    // PATH 1: Admin Email/Password Login
+    // ==========================================
     if (email && password) {
         const { data: authData, error: authError } = await sb.auth.signInWithPassword({ email, password });
         if (authError) return alert("Login Failed: " + authError.message);
@@ -62,12 +64,19 @@ window.handleAuthAction = async function() {
         if (leagues && leagues.length > 0) {
             const activeLeagueId = leagues[0].id;
             
-            // Admin "Check & Join" logic
+            // Check if admin already has a leaderboard slot (and track active status)
             const { data: existingEntry } = await sb.from('leaderboard')
-                .select('id').eq('name', adminName).eq('league_id', activeLeagueId);
+                .select('id, is_active')
+                .eq('name', adminName)
+                .eq('league_id', activeLeagueId)
+                .maybeSingle();
 
-            if (!existingEntry || existingEntry.length === 0) {
-                await sb.from('leaderboard').insert([{ name: adminName, beers: 0, league_id: activeLeagueId }]);
+            if (!existingEntry) {
+                // Brand new admin entry
+                await sb.from('leaderboard').insert([{ name: adminName, beers: 0, league_id: activeLeagueId, is_active: true }]);
+            } else if (!existingEntry.is_active) {
+                // Reactivate admin if they previously toggled themselves off
+                await sb.from('leaderboard').update({ is_active: true }).eq('id', existingEntry.id);
             }
 
             localStorage.setItem('beerProName', adminName);
@@ -77,28 +86,48 @@ window.handleAuthAction = async function() {
         return;
     }
 
-    // --- Choice B: Casual Mate joining (The new "Duplicate-Proof" version) ---
+    // ==========================================
+    // PATH 2: Casual Mate Joining via Code & Name
+    // ==========================================
     if (leagueId && userName) {
+        // 1. Verify the league exists and isn't deleted
+        const { data: leagueExists, error } = await sb.from('leagues')
+            .select('id, status')
+            .eq('id', leagueId)
+            .maybeSingle();
+            
+        if (error || !leagueExists || leagueExists.status === 'deleted') {
+            return alert("League code not found!");
+        }
+
+        // 2. Check if this player has historical data in this league
         const { data: existingUser } = await sb.from('leaderboard')
-            .select('name')
+            .select('id, is_active')
             .eq('league_id', leagueId)
             .eq('name', userName)
             .maybeSingle();
 
         if (!existingUser) {
+            // Fresh registration
             const { error: insertError } = await sb.from('leaderboard').insert([
-                { name: userName, beers: 0, league_id: leagueId }
+                { name: userName, beers: 0, league_id: leagueId, is_active: true }
             ]);
-            if (insertError) return alert("Error joining league. Check your code!");
+            if (insertError) return alert("Error joining league!");
+        } else if (!existingUser.is_active) {
+            // Returning user re-entering code -> flip active switch back on
+            await sb.from('leaderboard').update({ is_active: true }).eq('id', existingUser.id);
         }
         
+        // 3. Save to local storage and load the app interface
         localStorage.setItem('beerProName', userName);
         localStorage.setItem('beerProLeague', leagueId);
-        location.reload();
+        
+        setTimeout(() => { location.reload(); }, 300);
         return;
     }
 
-    alert("Enter League Code + Name to join, OR Email + Password to login.");
+    // Fallback error fallback if they clicked without filling things out
+    alert("Please enter either Admin credentials OR a League Code & Name.");
 };
 // 4. CREATE LEAGUE
 window.createLeague = async function() {
@@ -161,25 +190,69 @@ window.updateBeer = async function(delta) {
     fetchLeaderboard();
 };
 
+window.handleLeaveLeague = async function() {
+    const name = localStorage.getItem('beerProName');
+    const leagueId = localStorage.getItem('beerProLeague');
+    if (!name || !leagueId) return;
+
+    const confirmLeave = confirm(
+        "Are you sure you want to leave this league?\n\n" +
+        "You will stop showing up on this live leaderboard, but your pints will remain completely safe in your Career Stats profile!"
+    );
+    if (!confirmLeave) return;
+
+    // 1. Flip active status flag to false in the DB
+    const { error } = await sb.from('leaderboard')
+        .update({ is_active: false })
+        .eq('name', name)
+        .eq('league_id', leagueId);
+
+    if (error) {
+        return alert("Error leaving session: " + error.message);
+    }
+
+    // 2. Erase the session identifier memory layer locally
+    localStorage.removeItem('beerProLeague');
+    
+    alert("Session exited. 🚪");
+    location.reload();
+};
+
 // 5.1 FETCH & RENDER
 async function fetchLeaderboard() {
     const leagueId = localStorage.getItem('beerProLeague');
     if (!leagueId) return;
 
-    // Fetch League Name
     const { data: leagueData } = await sb.from('leagues')
-        .select('league_name').eq('id', leagueId).single();
+        .select('league_name, creator_id, status').eq('id', leagueId).single();
     
     if (leagueData) {
         document.getElementById('league-display-name').innerText = leagueData.league_name;
-        
-        // --- ADD THIS LINE BELOW ---
         document.getElementById('league-id-display').innerText = `ID: ${leagueId}`;
+
+        const { data: { user } } = await sb.auth.getUser();
+        const adminActionsDiv = document.getElementById('admin-actions');
+        
+        if (user && leagueData.creator_id === user.id && (leagueData.status || 'active') === 'active') {
+            adminActionsDiv.style.display = 'flex'; 
+        } else {
+            adminActionsDiv.style.display = 'none'; 
+        }
+
+        if (leagueData.status === 'archived') {
+            document.getElementById('league-display-name').innerText += " (ARCHIVED) 📦";
+            const mainButtons = document.querySelectorAll('.add-beer-btn, .minus-beer-btn');
+            mainButtons.forEach(btn => btn.style.pointerEvents = 'none');
+        } else {
+            const mainButtons = document.querySelectorAll('.add-beer-btn, .minus-beer-btn');
+            mainButtons.forEach(btn => btn.style.pointerEvents = 'auto');
+        }
     }
 
-    // ... (rest of the function stays exactly the same)
     const { data, error } = await sb.from('leaderboard')
-        .select('*').eq('league_id', leagueId).order('beers', { ascending: false });
+        .select('*')
+        .eq('league_id', leagueId)
+        .order('beers', { ascending: false });
 
     if (error) return;
 
@@ -193,8 +266,40 @@ async function fetchLeaderboard() {
             </tr>`).join('');
     }
 }
+
+// ADMIN PANEL BUTTON ACTIONS
+window.handleArchiveLeague = async function() {
+    const leagueId = localStorage.getItem('beerProLeague');
+    if (!leagueId) return;
+    if (!confirm("Are you sure you want to ARCHIVE this league?\nThis locks the board so no more beers can be logged, but everyone keeps their scores!")) return;
+
+    const { error } = await sb.from('leagues').update({ status: 'archived' }).eq('id', leagueId);
+    if (error) return alert("Error archiving: " + error.message);
+    
+    alert("League Archived successfully! 📦");
+    location.reload();
+};
+
+window.handleDeleteLeague = async function() {
+    const leagueId = localStorage.getItem('beerProLeague');
+    if (!leagueId) return;
+    if (!confirm("🚨 WARNING! 🚨\nAre you sure you want to DELETE this league?\nIt will disappear from screens, but historical pints remain safely in career stats databases.")) return;
+
+    const { error } = await sb.from('leagues').update({ status: 'deleted' }).eq('id', leagueId);
+    if (error) return alert("Error deleting: " + error.message);
+
+    localStorage.removeItem('beerProLeague');
+    alert("League has been dropped.");
+    location.reload();
+};
+
 // 6. UI HELPERS
-window.toggleModal = (show) => document.getElementById('info-modal').classList.toggle('active', show);
+window.toggleModal = (show) => {
+    document.getElementById('info-modal').classList.toggle('active', show);
+    if (show) {
+        loadMyLeagues(); 
+    }
+};
 
 window.handleLogout = async () => {
     await sb.auth.signOut();
@@ -213,26 +318,29 @@ async function init() {
         authOverlay.style.display = 'none';
         const finalName = savedName || user?.user_metadata?.display_name || user?.email?.split('@')[0];
         document.getElementById('display-name').innerText = finalName;
+        
+        const statsIcon = document.getElementById('stats-icon');
+        if (statsIcon) statsIcon.style.display = 'block';
+
         if (savedLeague) fetchLeaderboard();
     } else {
         authOverlay.style.display = 'flex';
     }
 }
 
-// 1. Fetch all leagues created by this Admin
 window.loadMyLeagues = async function() {
     const { data: { user } } = await sb.auth.getUser();
-    if (!user) return;
-
     const myName = localStorage.getItem('beerProName');
+    if (!myName) return;
 
-    // NEW LOGIC: Find all leagues where I am a player on the leaderboard
+    // ADDED FILTER: .eq('is_active', true) ensures left leagues don't display
     const { data: participations, error } = await sb.from('leaderboard')
         .select(`
             league_id,
-            leagues ( id, league_name )
+            leagues ( id, league_name, status )
         `)
-        .eq('name', myName);
+        .eq('name', myName)
+        .eq('is_active', true);
 
     const manageSection = document.getElementById('admin-manage-section');
     const listContainer = document.getElementById('my-leagues-list');
@@ -240,13 +348,12 @@ window.loadMyLeagues = async function() {
     if (participations && participations.length > 0) {
         manageSection.style.display = 'block';
         
-        // Map through the results to get the league details
         listContainer.innerHTML = participations.map(p => {
             const l = p.leagues;
-            if (!l) return ''; // Guard clause
+            if (!l || l.status === 'deleted') return ''; 
             return `
                 <button onclick="switchLeague('${l.id}')" class="minus-beer-btn" style="width: 100%; text-align: left; padding-left: 15px; color: white; border-color: #333; margin-bottom: 5px;">
-                    ${l.league_name}
+                    ${l.league_name} ${l.status === 'archived' ? '📦' : ''}
                 </button>
             `;
         }).join('');
@@ -254,90 +361,81 @@ window.loadMyLeagues = async function() {
         manageSection.style.display = 'none';
     }
 };
-// 2. The Switcher Function
 window.switchLeague = function(leagueId) {
     localStorage.setItem('beerProLeague', leagueId);
-    // Note: handleAuthAction's logic will automatically add your name 
-    // to this league's leaderboard when the page reloads.
     location.reload(); 
 };
 
-// 3. Update toggleModal to trigger the loader
-// (Replace your existing toggleModal with this one)
-window.toggleModal = (show) => {
-    document.getElementById('info-modal').classList.toggle('active', show);
-    if (show) {
-        loadMyLeagues(); // Refresh the list every time the menu opens
-    }
-};
-
-// --- NEW: Join a league from inside the About Modal ---
 window.joinViaModal = async function() {
     const code = document.getElementById('modal-join-id').value.trim();
     if (!code) return alert("Please enter a code!");
 
     const myName = localStorage.getItem('beerProName');
-    if (!myName) return alert("Error: User name not found. Try logging out and back in.");
+    if (!myName) return alert("Error: User name not found.");
 
-    // 1. Check if league exists
-    const { data: leagueExists, error } = await sb.from('leagues').select('id').eq('id', code).maybeSingle();
-    if (error || !leagueExists) return alert("League code not found!");
+    const { data: leagueExists, error } = await sb.from('leagues').select('id, status').eq('id', code).maybeSingle();
+    if (error || !leagueExists || leagueExists.status === 'deleted') return alert("League code not found!");
 
-    // 2. Add player to the new league's leaderboard if not already there
+    // Query both id and current active status
     const { data: existing } = await sb.from('leaderboard')
-        .select('id').eq('name', myName).eq('league_id', code).maybeSingle();
+        .select('id, is_active').eq('name', myName).eq('league_id', code).maybeSingle();
 
     if (!existing) {
-        await sb.from('leaderboard').insert([{ name: myName, beers: 0, league_id: code }]);
+        // Brand new player entry
+        await sb.from('leaderboard').insert([{ name: myName, beers: 0, league_id: code, is_active: true }]);
+    } else if (!existing.is_active) {
+        // Welcoming back a returning player who previously left
+        await sb.from('leaderboard').update({ is_active: true }).eq('id', existing.id);
     }
 
-    // 3. Switch to the new league
     localStorage.setItem('beerProLeague', code);
     location.reload();
 };
 
 window.showPersonalStats = async function() {
     const myName = localStorage.getItem('beerProName');
+    const currentLeagueId = localStorage.getItem('beerProLeague');
     if (!myName) return;
 
-    // 1. Fetch every single entry for this name across all leagues
+    // 1. Fetch all the data we need (beers, league ids, and active status)
     const { data, error } = await sb.from('leaderboard')
-        .select('beers')
+        .select('league_id, beers, is_active')
         .eq('name', myName);
-
+        
     if (error) return console.error(error);
 
-    // 2. Calculate Totals
-    const totalBeers = data.reduce((sum, row) => sum + (row.beers || 0), 0);
-    const totalLeagues = data.length;
+    // 2. Set up our counters
+    let currentBeers = 0;
+    let activeLeaguesCount = 0;
+    let totalBeers = 0;
+    let totalLeagues = data ? data.length : 0;
 
-    // 3. Update Modal & Show
+    // 3. Loop through your rows once to calculate everything perfectly
+    if (data && data.length > 0) {
+        data.forEach(row => {
+            // Add to total historic beers
+            totalBeers += (row.beers || 0);
+
+            // Check if they are currently an active member of this league
+            if (row.is_active === true) {
+                activeLeaguesCount++;
+            }
+
+            // Check if this row belongs to the specific league they are looking at right now
+            if (currentLeagueId && row.league_id === currentLeagueId) {
+                currentBeers = row.beers || 0;
+            }
+        });
+    }
+
+    // 4. Safely push the calculated data into your custom UI layout IDs
+    document.getElementById('stat-current-beers').innerText = currentBeers;
+    document.getElementById('stat-current-leagues').innerText = activeLeaguesCount;    
     document.getElementById('stat-total-beers').innerText = totalBeers;
     document.getElementById('stat-total-leagues').innerText = totalLeagues;
+
+    // 5. Fire open the modal animations!
     document.getElementById('stats-modal').classList.add('active');
 };
-
-// Update your init() function to show the icon only for account holders
-async function init() {
-    const { data: { user } } = await sb.auth.getUser();
-    const savedName = localStorage.getItem('beerProName');
-    const savedLeague = localStorage.getItem('beerProLeague');
-    const authOverlay = document.getElementById('auth-overlay');
-    
-    if (user || (savedName && savedLeague)) {
-        authOverlay.style.display = 'none';
-        const finalName = savedName || user?.user_metadata?.display_name;
-        document.getElementById('display-name').innerText = finalName;
-        
-        // --- ONLY SHOW STATS ICON IF LOGGED IN VIA EMAIL ---
-        if (user) {
-            document.getElementById('stats-icon').style.display = 'block';
-        }
-
-        if (savedLeague) fetchLeaderboard();
-    } else {
-        authOverlay.style.display = 'flex';
-    }
-}
-
+// Fire the initialization engine on run
 init();

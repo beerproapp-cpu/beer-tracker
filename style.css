@@ -42,7 +42,7 @@ body {
     box-shadow: 0 0 40px rgba(255, 191, 0, 0.15);
 }
 
-/* --- 3. THE GLITCH TITLE (FOR LOGIN SCREEN) --- */
+/* --- 3. THE GLITCH TITLE --- */
 .glitch-title {
     font-family: 'Orbitron', sans-serif;
     font-weight: 900;
@@ -141,7 +141,7 @@ button[onclick*="handle"]:active {
     transform: scale(0.97);
 }
 
-/* --- 7. MAIN APP UI (TOP NAV FIX) --- */
+/* --- 7. MAIN APP UI --- */
 .app-container {
     max-width: 600px;
     margin: 0 auto;
@@ -151,7 +151,7 @@ button[onclick*="handle"]:active {
 .top-nav {
     display: flex;
     justify-content: space-between;
-    align-items: center; /* Ensures logo and actions are level */
+    align-items: center;
     padding: 20px 0;
     border-bottom: 1px solid #222;
     margin-bottom: 40px;
@@ -166,7 +166,7 @@ button[onclick*="handle"]:active {
 
 .nav-actions {
     display: flex;
-    align-items: center; /* Crucial: levels the 'i' and Logout text */
+    align-items: center;
     gap: 20px;
 }
 
@@ -192,9 +192,9 @@ button[onclick*="handle"]:active {
     letter-spacing: 2px;
     font-weight: 700;
     margin-bottom: 5px;
-margin-top: 20px;
+    margin-top: 20px;
     font-size: 3rem;
-    min-height: 1.2rem; /* Prevents layout jump when name loads */
+    min-height: 1.2rem;
 }
 
 header {
@@ -216,6 +216,7 @@ header h1 {
     font-size: 1.6rem;
     color: #888;
 }
+
 #display-name {
     color: #FFBF00;
     font-weight: 700;
@@ -271,9 +272,9 @@ header h1 {
 
 .minus-beer-btn {
     padding: 15px;
-    background: rgba(255, 255, 255, 0.03); /* Tiny bit of fill so it's not totally hollow */
-    color: #999; /* Much clearer grey text */
-    border: 1px solid rgba(255, 255, 255, 0.2); /* Stronger faint border */
+    background: rgba(255, 255, 255, 0.03);
+    color: #999;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 15px;
     font-family: 'Rajdhani', sans-serif;
     cursor: pointer;
@@ -281,35 +282,20 @@ header h1 {
     font-size: 0.8rem;
     transition: all 0.2s ease;
     outline: none;
-    -webkit-appearance: none; /* Prevents iOS from applying default button styling */
+    -webkit-appearance: none;
 }
 
 /* --- 11. MODAL / ABOUT --- */
 .about-card {
-    max-height: 90vh !important; /* Never taller than 90% of screen */
-    overflow-y: auto !important; /* Enable internal scrolling */
+    max-height: 90vh !important;
+    overflow-y: auto !important;
     display: flex;
     flex-direction: column;
     padding-bottom: 20px;
+    max-width: 450px !important;
+    padding: 30px !important;
 }
 
-.close-btn {
-    background: #333;
-    color: white;
-    border: none;
-    padding: 15px;
-    border-radius: 15px;
-    margin-top: 20px;
-    width: 100%;
-    cursor: pointer;
-}
-
-/* Admin Divider */
-#join-section div[style*="border-top"] {
-    margin-top: 25px !important;
-}
-
-/* Styling for the text inside the About card */
 .about-text {
     font-size: 1.1rem;
     line-height: 1.5;
@@ -321,28 +307,21 @@ header h1 {
     color: #FFBF00;
 }
 
-/* The legal disclaimer at the bottom */
 .disclaimer {
     font-size: 0.75rem;
-    color: #ff4a4a
+    color: #ff4a4a;
     font-style: italic;
     line-height: 1.3;
     margin-top: 5px;
-margin-bottom: 5px;
+    margin-bottom: 5px;
     padding: 0 10px;
-}
-
-/* Ensure the about card can handle the extra text height */
-.about-card {
-    max-width: 450px !important;
-    padding: 30px !important;
 }
 
 .got-it-btn {
     width: 100%;
     padding: 15px;
-    background: #FFBF00; /* The signature Yellow */
-    color: #000;         /* Black text for contrast */
+    background: #FFBF00;
+    color: #000;
     border: none;
     border-radius: 15px;
     margin-top: auto;
@@ -356,7 +335,7 @@ margin-bottom: 5px;
 }
 
 .got-it-btn:hover {
-    background: #e6ac00; /* Slightly darker yellow on hover */
+    background: #e6ac00;
 }
 
 .got-it-btn:active {
@@ -373,48 +352,43 @@ margin-bottom: 5px;
     font-size: 1.2rem;
     color: #FFBF00;
     letter-spacing: 2px;
-    word-break: break-all; /* Ensures long IDs don't break the card */
+    word-break: break-all;
 }
 
 #copy-btn.copied {
-    background: #4CAF50; /* Turns green when clicked */
+    background: #4CAF50;
     color: white;
 }
 
-/* ADD BEER: White border and shrink on click */
 .add-beer-btn:active {
-    transform: scale(0.96); /* Shrinks slightly */
-    border: 3px solid #FFF; /* Flashes white border */
-    background-color: #ffcc33; /* Shifts yellow slightly */
+    transform: scale(0.96);
+    border: 3px solid #FFF;
+    background-color: #ffcc33;
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
-    transition: 0.05s; /* Makes it feel "snappy" */
+    transition: 0.05s;
 }
 
-/* The Click State */
 .minus-beer-btn:active {
     transform: scale(0.98);
     background-color: #ff4444 !important;
     color: white !important;
-    border: 2px solid #FFF !important; /* Thick white border flash */
+    border: 2px solid #FFF !important;
     transition: 0.0s; 
     -webkit-tap-highlight-color: transparent; 
 }
 
-/* Custom Scrollbar for the League List (Chrome/Safari) */
+/* Custom Scrollbar for the League List */
 #my-leagues-list::-webkit-scrollbar {
     width: 4px;
 }
-
 #my-leagues-list::-webkit-scrollbar-track {
     background: #000;
 }
-
 #my-leagues-list::-webkit-scrollbar-thumb {
     background: #333;
     border-radius: 10px;
 }
 
-/* Ensure the switcher buttons look like secondary menu items */
 #my-leagues-list button {
     text-align: left;
     padding-left: 20px !important;
@@ -422,41 +396,11 @@ margin-bottom: 5px;
     border: 1px solid #333;
     font-size: 0.9rem;
 }
-
 #my-leagues-list button:hover {
     border-color: #FFBF00;
     color: #FFBF00;
 }
 
-/* Custom Scrollbar for the League List (Chrome/Safari) */
-#my-leagues-list::-webkit-scrollbar {
-    width: 4px;
-}
-
-#my-leagues-list::-webkit-scrollbar-track {
-    background: #000;
-}
-
-#my-leagues-list::-webkit-scrollbar-thumb {
-    background: #333;
-    border-radius: 10px;
-}
-
-/* Ensure the switcher buttons look like secondary menu items */
-#my-leagues-list button {
-    text-align: left;
-    padding-left: 20px !important;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid #333;
-    font-size: 0.9rem;
-}
-
-#my-leagues-list button:hover {
-    border-color: #FFBF00;
-    color: #FFBF00;
-}
-
-/* Modal Control Center Classes */
 .modal-label {
     font-size: 0.8rem;
     color: #FFBF00;
@@ -498,7 +442,6 @@ margin-bottom: 5px;
     margin-top: 0 !important;
 }
 
-/* Fix for Success Modal Title & Box */
 #success-modal .auth-card {
     height: auto;
     min-height: fit-content;
@@ -506,14 +449,13 @@ margin-bottom: 5px;
 }
 
 #success-modal .glitch-title {
-    font-size: 1.2rem !important; /* Scaled down for mobile */
+    font-size: 1.2rem !important;
     letter-spacing: 4px;
     line-height: 1.2;
     display: block;
     margin-bottom: 15px;
 }
 
-/* Tiny Admin ID Badge */
 .admin-id-badge {
     font-size: 0.7rem;
     color: #FFBF00;
@@ -524,23 +466,6 @@ margin-bottom: 5px;
     font-family: 'Orbitron', sans-serif;
     display: inline-block;
     padding: 4px 8px;
-}
-
-/* Success Modal Layout Fixes */
-.success-card {
-    width: 92% !important;
-    padding: 25px 20px !important;
-}
-
-.small-glitch {
-    font-size: 1.4rem !important; 
-    line-height: 1.1;
-    letter-spacing: 4px !important;
-}
-
-.full-width {
-    width: 100%;
-    margin-top: 15px;
 }
 
 .stats-grid {
@@ -572,4 +497,67 @@ margin-bottom: 5px;
     font-family: 'Orbitron', sans-serif;
     font-size: 1.8rem;
     color: #FFBF00;
+}
+
+/* --- ADMIN ACTION COMPONENT BUTTONS --- */
+.admin-control-btn {
+    background: rgba(0, 0, 0, 0.6);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+.archive-btn {
+    border: 1px solid #FFBF00;
+    color: #FFBF00;
+}
+.archive-btn:active {
+    background: rgba(255, 191, 0, 0.2);
+}
+.delete-btn {
+    border: 1px solid #ff4a4a;
+    color: #ff4a4a;
+}
+.delete-btn:active {
+    background: rgba(255, 74, 74, 0.2);
+}
+
+/* --- 12. LEAVE LEAGUE COMPONENT --- */
+button.leave-league-btn, 
+.leave-league-btn {
+    display: block !important;
+    width: 100% !important;
+    padding: 18px !important;
+    background-color: #6a0dad !important; /* Forces solid purple by default */
+    background: #6a0dad !important;       /* Overrides any gradients or background-images */
+    color: #ffffff !important;            /* Crisp white text */
+    border: none !important;
+    border-radius: 20px !important;
+    font-family: 'Rajdhani', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 1.1rem !important;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+    margin-top: 25px !important;
+    -webkit-appearance: none;
+}
+
+/* Hover state for desktop */
+button.leave-league-btn:hover,
+.leave-league-btn:hover {
+    background-color: #7b2cbf !important;
+    background: #7b2cbf !important;
+}
+
+/* Active state for physical clicks/taps */
+button.leave-league-btn:active,
+.leave-league-btn:active {
+    transform: scale(0.97);
+    background-color: #4a0680 !important;
+    background: #4a0680 !important;
 }
