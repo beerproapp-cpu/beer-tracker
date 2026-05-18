@@ -700,3 +700,130 @@ button.leave-league-btn:active,
         gap: 8px !important; /* Compresses buttons slightly so they don't crowd the logo */
     }
 }
+
+/* --- 15. VERIFIED BADGE & ACTION SHEET SYSTEM --- */
+
+/* The sleek, faint verified member badge next to names */
+.verified-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    color: #a224ec; /* Cyber Purple */
+    background: rgba(162, 36, 236, 0.15);
+    border: 1px solid rgba(162, 36, 236, 0.4);
+    padding: 1px 5px;
+    border-radius: 4px;
+    margin-left: 6px;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+    opacity: 0.8;
+}
+
+/* Make leaderboard name rows show they are clickable */
+.leaderboard-row-interactive {
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.leaderboard-row-interactive:hover {
+    background: rgba(255, 183, 3, 0.05) !important; /* Extremely subtle glow on hover */
+}
+
+/* Fullscreen overlay wrapper for the popup sheet */
+.custom-action-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* Slides up gracefully from the bottom on phones */
+    z-index: 9999;
+}
+
+/* The popup drawer content box */
+.action-sheet-content {
+    background: #111111;
+    width: 100%;
+    max-width: 450px;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    border: 1px solid #222222;
+    border-bottom: none;
+    padding: 24px;
+    box-sizing: border-box;
+    text-align: center;
+    animation: slideUp 0.25s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+.action-sheet-content h3 {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #ffb703; /* Brand Gold */
+    margin: 0 0 4px 0;
+    text-transform: uppercase;
+}
+
+#action-modal-subtitle {
+    color: #666666;
+    font-size: 0.85rem;
+    margin: 0 0 20px 0;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Stack layout for mobile finger targets */
+.action-buttons-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Universal sheet buttons structural design */
+.sheet-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s, transform 0.1s;
+}
+.sheet-btn:active {
+    transform: scale(0.98);
+}
+
+/* Specific theme assignments */
+.sheet-btn.stats-btn {
+    background: #222222;
+    color: #ffffff;
+    border: 1px solid #333333;
+}
+.sheet-btn.stats-btn:hover {
+    background: #2a2a2a;
+}
+
+.sheet-btn.kick-btn {
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336; /* Danger Red */
+    border: 1px solid rgba(244, 67, 54, 0.3);
+}
+.sheet-btn.kick-btn:hover {
+    background: rgba(244, 67, 54, 0.2);
+}
+
+.sheet-btn.cancel-btn {
+    background: transparent;
+    color: #888888;
+}

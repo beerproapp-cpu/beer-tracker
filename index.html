@@ -172,6 +172,28 @@
         <a href="privacy.html" class="privacy-link">PRIVACY POLICY</a>
     </div>
 
+
+<div id="player-action-modal" class="custom-action-modal" style="display: none;">
+    <div class="action-sheet-content">
+        <h3 id="action-modal-title">PLAYER OPTIONS</h3>
+        <p id="action-modal-subtitle">Logged-in Member</p>
+        
+        <div class="action-buttons-stack">
+            <button id="view-stats-action-btn" class="sheet-btn stats-btn">
+                📊 View Career Stats
+            </button>
+            
+            <button id="kick-player-action-btn" class="sheet-btn kick-btn admin-only-field">
+                ❌ Remove From League
+            </button>
+            
+            <button onclick="closePlayerActionModal()" class="sheet-btn cancel-btn">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
     <script src="script.js"></script>
 </body>
 </html>
